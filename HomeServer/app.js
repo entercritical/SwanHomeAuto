@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mysql_info = require('./config/mysql-info');
 
 var rcswitch = require('rcswitch');
 
@@ -33,11 +34,23 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', routes);
 app.use('/api/codesend', codesend);
 
+var mysqlStore = require('connect-mysql')(session),
+    options = {
+        config: {
+            user: mysql_info.user,
+            password: mysql_info.password,
+            database: mysql_info.database
+        }
+    };
 // required for passport
 app.use(session({
     secret: 'homesweethome',
-    resave: false,
-    saveUninitialized: true
+    cookie: {
+        maxAage: 3600000
+    },
+    resave: true,
+    saveUninitialized: true,
+    store: new mysqlStore(options)
 }));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions

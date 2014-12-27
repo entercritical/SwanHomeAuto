@@ -3,6 +3,7 @@
 // load all the things we need
 var LocalStrategy   = require('passport-local').Strategy;
 var bcrypt   = require('bcrypt-nodejs');
+var mysql_info = require('./mysql-info');
 // methods ======================
 // generating a hash
 var generateHash = function(password) {
@@ -17,12 +18,7 @@ var validPassword = function(password, crypted) {
 // load up the user model
 //var User       		= require('../models/user');
 var mysql      = require('mysql');
-var connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : '[user id]',
-    password : '[password]',
-    database : 'database'
-});
+var connection = mysql.createConnection(mysql_info);
 
 connection.connect(function(err) {
     if (err) {
