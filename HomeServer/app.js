@@ -8,7 +8,6 @@ var mysql_info = require('./config/mysql-info');
 
 var rcswitch = require('rcswitch');
 
-var routes = require('./routes/index');
 var codesend = require('./routes/codesend');
 
 var session = require('express-session')
@@ -31,7 +30,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', routes);
 app.use('/api/codesend', codesend);
 
 var mysqlStore = require('connect-mysql')(session),
@@ -46,15 +44,23 @@ var mysqlStore = require('connect-mysql')(session),
 app.use(session({
     secret: 'homesweethome',
     cookie: {
-        maxAage: 3600000
+        maxAge: (24*3600*1000*30)
     },
-    resave: true,
-    saveUninitialized: true,
+    resave: false,
+    saveUninitialized: false,
     store: new mysqlStore(options)
 }));
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
+
+app.get('/', function(req, res) {
+    if (req.isAuthenticated()) {
+        res.redirect('/homeauto');
+    } else {
+        res.render('index.ejs'); // load the index.ejs file
+    }
+});
 
 // show the login form
 app.get('/login', function(req, res) {
