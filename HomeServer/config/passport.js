@@ -4,6 +4,7 @@
 var LocalStrategy   = require('passport-local').Strategy;
 var bcrypt   = require('bcrypt-nodejs');
 var mysql_info = require('./mysql-info');
+var request = require('request');
 // methods ======================
 // generating a hash
 var generateHash = function(password) {
@@ -104,23 +105,62 @@ module.exports = function(passport) {
     function(req, name, password, done) { // callback with email and password from our form
         // find a user whose email is the same as the forms email
         // we are checking to see if the user trying to login already exists
-        connection.query('SELECT * FROM users WHERE name = ?', name, function(err, user) {
-            // connected! (unless `err` is set)
-            // if there are any errors, return the error before anything else
-            if (err)
-                return done(err);
+        console.log(req.client._peername);
+        console.log(req.body);
 
-            // if no user is found, return the message
-            if (user.length == 0)
-                return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
 
-            // if the user is found but the password is wrong
-            if (!validPassword(password, user[0].password))
-                return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
 
-            // all is well, return successful user
-            return done(null, {name: user[0].name, password: user[0].password});
-        });
+        request.post(
+            mysql_info.recaptcha_url,
+            { form: {
+                secret: mysql_info.recaptcha_secret,
+                response: req.body['g-recaptcha-response']
+            } },
+            function (error, response, body) {
+                var result = JSON.parse(body);
+                console.log(result);
+
+                if (result.success) {
+                    connection.query('SELECT * FROM users WHERE name = ?', name, function (err, user) {
+                        // connected! (unless `err` is set)
+                        // if there are any errors, return the error before anything else
+                        if (err)
+                            return done(err);
+
+                        // if no user is found, return the message
+                        if (user.length == 0)
+                            return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
+
+                        // if the user is found but the password is wrong
+                        if (!validPassword(password, user[0].password))
+                            return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+
+                        // all is well, return successful user
+                        return done(null, {name: user[0].name, password: user[0].password});
+                    });
+                } else {
+                    return done(null, false, req.flash('loginMessage', 'reCAPTCHA failed'));
+                }
+            }
+        );
+
+        //connection.query('SELECT * FROM users WHERE name = ?', name, function(err, user) {
+        //    // connected! (unless `err` is set)
+        //    // if there are any errors, return the error before anything else
+        //    if (err)
+        //        return done(err);
+        //
+        //    // if no user is found, return the message
+        //    if (user.length == 0)
+        //        return done(null, false, req.flash('loginMessage', 'No user found.')); // req.flash is the way to set flashdata using connect-flash
+        //
+        //    // if the user is found but the password is wrong
+        //    if (!validPassword(password, user[0].password))
+        //        return done(null, false, req.flash('loginMessage', 'Oops! Wrong password.')); // create the loginMessage and save it to session as flashdata
+        //
+        //    // all is well, return successful user
+        //    return done(null, {name: user[0].name, password: user[0].password});
+        //});
 
     }));
 

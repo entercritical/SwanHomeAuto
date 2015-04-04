@@ -11,6 +11,7 @@
 	<style>
 		body 		{ padding-top:80px; }
 	</style>
+    <script src='https://www.google.com/recaptcha/api.js'></script>
 </head>
 <body>
 <div class="container">
@@ -34,6 +35,8 @@
 			<label>Password</label>
 			<input type="password" class="form-control" name="password">
 		</div>
+
+        <div class="g-recaptcha" data-sitekey="Your sitekey"></div>
 
 		<button type="submit" class="btn btn-warning btn-lg">Login</button>
 	</form>
