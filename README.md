@@ -6,13 +6,17 @@ Home Automation (Raspberry Pi, Arduino)
 Install
 ==================
 
-1. nodejs
+- nodejs
 
 sudo apt-get install nodejs
 
-2. mysql
+- mysql
 
 sudo apt-get install mysql-server mysql-client
 
-3. add mysql user
+- add mysql user
 mysql> create user homeserver;
+
+- add database
+mysql> create database homeserver;
+mysql> grant all privileges on homeserver.* to homeserver@localhost;
