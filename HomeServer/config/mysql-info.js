@@ -1,6 +1,6 @@
 var mysql_info = {
     host     : 'localhost',
-    user     : 'janush',
+    user     : 'homeserver',
     password : '',
     database : 'homeserver',
     recaptcha_url : 'https://www.google.com/recaptcha/api/siteverify',
