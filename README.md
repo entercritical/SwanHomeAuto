@@ -17,6 +17,10 @@ mysql> create user homeserver;
 ```
 ###add database
 ```
-mysql> create database homeserver;`
+mysql> create database homeserver;
 mysql> grant all privileges on homeserver.* to homeserver@localhost;
+```
+###add table
+```
+mysql> create table users (name VARCHAR(20), password VARCHAR(255));
 ```
