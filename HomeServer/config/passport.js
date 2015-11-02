@@ -66,28 +66,41 @@ module.exports = function(passport) {
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
     function(req, name, password, done) {
-		// find a user whose email is the same as the forms email
+        request.post(
+            mysql_info.recaptcha_url,
+            { form: {
+                secret: mysql_info.recaptcha_secret,
+                response: req.body['g-recaptcha-response']
+            } },
+            function (error, response, body) {
+                var result = JSON.parse(body);
+                console.log(result);
 
-        connection.query('SELECT * FROM users WHERE name = ?', name, function(err, user) {
-            // if there are any errors, return the error
-            if (err)
-                return done(err);
+                if (result.success) {
+                    // find a user whose email is the same as the forms email
+                    connection.query('SELECT * FROM users WHERE name = ?', name, function(err, user) {
+                        // if there are any errors, return the error
+                        if (err)
+                            return done(err);
 
-            // check to see if theres already a user with that email
-            if (user.length != 0) {
-                return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
-            } else {
-                var encrypt = generateHash(password);
-                console.log("insert " + name + " " + encrypt);
-                connection.query("INSERT INTO users VALUES ( '" + name + "','" + encrypt + "')", function (err, user) {
-                    if (err)
-                        throw err;
-                    return done(null, {name: name, password: encrypt});
-                });
-            }
+                        // check to see if theres already a user with that email
+                        if (user.length != 0) {
+                            return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+                        } else {
+                            var encrypt = generateHash(password);
+                            console.log("insert " + name + " " + encrypt);
+                            connection.query("INSERT INTO users VALUES ( '" + name + "','" + encrypt + "')", function (err, user) {
+                                if (err)
+                                    throw err;
+                                return done(null, {name: name, password: encrypt});
+                            });
+                        }
 
-        });
-
+                    });
+                } else {
+                    return done(null, false, req.flash('signupMessage', 'reCAPTCHA failed'));
+                }
+            });
     }));
 
     // =========================================================================
