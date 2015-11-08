@@ -5,6 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var mysql_info = require('./config/mysql-info');
+var recaptcha_info = require('./config/recaptcha-info');
 
 var rcswitch = require('rcswitch');
 
@@ -65,7 +66,7 @@ app.get('/', function(req, res) {
 // show the login form
 app.get('/login', function(req, res) {
     // render the page and pass in any flash data if it exists
-    res.render('login.ejs', { message: req.flash('loginMessage') });
+    res.render('login.ejs', { message: req.flash('loginMessage'), sitekey: recaptcha_info.recaptcha_sitekey });
 });
 
 // process the login form
@@ -79,7 +80,7 @@ app.post('/login', passport.authenticate('local-login', {
 app.get('/signup', function(req, res) {
 
     // render the page and pass in any flash data if it exists
-    res.render('signup.ejs', { message: req.flash('signupMessage') });
+    res.render('signup.ejs', { message: req.flash('signupMessage'), sitekey: recaptcha_info.recaptcha_sitekey  });
 });
 
 // process the signup form

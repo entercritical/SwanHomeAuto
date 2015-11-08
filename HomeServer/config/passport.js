@@ -4,6 +4,7 @@
 var LocalStrategy   = require('passport-local').Strategy;
 var bcrypt   = require('bcrypt-nodejs');
 var mysql_info = require('./mysql-info');
+var recaptcha_info = require('./recaptcha-info');
 var request = require('request');
 // methods ======================
 // generating a hash
@@ -67,9 +68,9 @@ module.exports = function(passport) {
     },
     function(req, name, password, done) {
         request.post(
-            mysql_info.recaptcha_url,
+            recaptcha_info.recaptcha_url,
             { form: {
-                secret: mysql_info.recaptcha_secret,
+                secret: recaptcha_info.recaptcha_secret,
                 response: req.body['g-recaptcha-response']
             } },
             function (error, response, body) {
@@ -124,9 +125,9 @@ module.exports = function(passport) {
 
 
         request.post(
-            mysql_info.recaptcha_url,
+            recaptcha_info.recaptcha_url,
             { form: {
-                secret: mysql_info.recaptcha_secret,
+                secret: recaptcha_info.recaptcha_secret,
                 response: req.body['g-recaptcha-response']
             } },
             function (error, response, body) {
