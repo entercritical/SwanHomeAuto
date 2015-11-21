@@ -11,6 +11,39 @@ var rcswitch = require('rcswitch');
 
 var codesend = require('./routes/codesend');
 
+var dht = require('dht-sensor');
+
+var gpio = require('rpi-gpio');
+
+var boiler = (function() {
+
+    var boiler_state = false;
+
+    gpio.on('change', function(channel, value) {
+	if (channel == 16 && value == true) {
+	    boiler_state = !boiler_state;
+	    gpio.write(15, boiler_state);
+    	    console.log('Toggle button pushed, boiler_state ' + boiler_state);
+	}
+    });
+    gpio.setup(15, gpio.DIR_OUT);
+    gpio.setup(16, gpio.DIR_IN, gpio.EDGE_BOTH);
+
+    return {
+	turnOn: function() {
+	    boiler_state = true;
+	    gpio.write(15, boiler_state);
+	},
+	turnOff: function() {
+	    boiler_state = false;
+	    gpio.write(15, boiler_state);
+	},
+	getState: function() {
+	    return boiler_state;
+	}
+    };
+}());
+
 var session = require('express-session')
 var passport = require('passport');
 var flash    = require('connect-flash');
@@ -31,7 +64,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api/codesend', codesend);
+//app.use('/api/codesend', codesend);
 
 var mysqlStore = require('connect-mysql')(session),
     options = {
@@ -92,8 +125,13 @@ app.post('/signup', passport.authenticate('local-signup', {
 
 // we will use route middleware to verify this (the isLoggedIn function)
 app.get('/homeauto', isLoggedIn, function(req, res) {
+    var  current = dht.read(11, 18);
+
     res.render('homeauto.ejs', {
-        user : req.user // get the user out of session and pass to template
+        user : req.user, // get the user out of session and pass to template
+        temperature : current.temperature,
+        humidity : current.humidity,
+	boilerState : boiler.getState()
     });
 });
 
@@ -110,6 +148,18 @@ app.post('/codesend', isLoggedIn, function(req, res) {
 
     rcswitch.send(binCode);
 
+    res.redirect("back");
+});
+
+app.post('/api/boilerOn', isLoggedIn, function(req, res) {
+    console.log("Boiler On");
+    boiler.turnOn();
+    res.redirect("back");
+});
+
+app.post('/api/boilerOff', isLoggedIn, function(req, res) {
+    console.log("Boiler Off");
+    boiler.turnOff();
     res.redirect("back");
 });
 

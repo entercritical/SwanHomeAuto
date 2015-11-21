@@ -33,6 +33,12 @@
                 <p>
                     <strong>name</strong>: <%= user.name %><br>
                 </p>
+                <p>
+                    <strong>temperature</strong>: <%= temperature %><br>
+                </p>
+                <p>
+                    <strong>humidity</strong>: <%= humidity %><br>
+                </p>
 
             </div>
         </div>
@@ -43,11 +49,12 @@
         <!-- LOCAL INFORMATION -->
         <div class="col-sm-6">
             <div class="well">
-                <h3><span class="fa fa-gears"></span> Boiler</h3>
-                <form action="/codesend?unitCode=1001" method="post">
+              <h3><span class="fa fa-gears"></span> Boiler</h3>
+	      <p><%= boilerState %></p>
+                <form action="/api/boilerOn" method="post">
                     <input type="submit" class="btn btn-default" value="On" />
                 </form>
-                <form action="/codesend?unitCode=1000" method="post">
+                <form action="/api/boilerOff" method="post">
                     <input type="submit" class="btn btn-default" value="Off" />
                 </form>
             </div>
