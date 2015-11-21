@@ -1,26 +1,41 @@
 #SwanHomeAuto
 
-Home Automation (Raspberry Pi, Arduino)
+Home Automation by Raspberry Pi 2
 
-##Install
-###nodejs
+(Node.js, DHT11 Temperature/Humidity sensor, GPIO, Relay)
+
+
+###Install
+1.nodejs
 ```
 sudo apt-get install nodejs
 ```
-###mysql
+2.mysql
 ```
 sudo apt-get install mysql-server mysql-client
 ```
-###add mysql user
+3.add mysql user
 ```
 mysql> create user homeserver@localhost;
 ```
-###add database
+4.add database
 ```
 mysql> create database homeserver;
 mysql> grant all privileges on homeserver.* to homeserver@localhost;
 ```
-###add table
+5.add table
 ```
 mysql> create table users (name VARCHAR(20), password VARCHAR(255));
 ```
+6.reCAPTCHA (https://www.google.com/recaptcha/intro/index.html)
+
+edit config/recaptcha-info.js
+```
+var recaptcha_info = {
+    recaptcha_url : 'https://www.google.com/recaptcha/api/siteverify',
+    recaptcha_sitekey : 'Your Site key',
+    recaptcha_secret : 'You Secret key'
+};
+```
+ 
+
