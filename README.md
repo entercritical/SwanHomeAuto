@@ -13,7 +13,7 @@ sudo apt-get install mysql-server mysql-client
 ```
 ###add mysql user
 ```
-mysql> create user homeserver;
+mysql> create user homeserver@localhost;
 ```
 ###add database
 ```
