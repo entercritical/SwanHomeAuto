@@ -38,4 +38,9 @@ var recaptcha_info = {
 };
 ```
  
-
+###Run
+```
+$ cd HomeServer
+$ npm install
+$ npm start
+```
