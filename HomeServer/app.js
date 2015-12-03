@@ -30,11 +30,15 @@ var boiler = (function() {
     gpio.setup(16, gpio.DIR_IN, gpio.EDGE_BOTH);
 
     return {
-	turnOn: function() {
+	turnOn: function(hour) {
+	    console.log("turnOn: set timeout hour = ", hour);
 	    boiler_state = true;
 	    gpio.write(15, boiler_state);
+	    
+	    setTimeout(this.turnOff, hour * 60 * 60 * 1000);
 	},
 	turnOff: function() {
+	    console.log("turnOff");
 	    boiler_state = false;
 	    gpio.write(15, boiler_state);
 	},
@@ -152,8 +156,9 @@ app.post('/codesend', isLoggedIn, function(req, res) {
 });
 
 app.post('/api/boilerOn', isLoggedIn, function(req, res) {
-    console.log("Boiler On");
-    boiler.turnOn();
+    var hour = req.query.hour;
+    console.log("Boiler On : " + hour);
+    boiler.turnOn(hour);
     res.redirect("back");
 });
 
