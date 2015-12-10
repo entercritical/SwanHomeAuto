@@ -18,11 +18,25 @@ var gpio = require('rpi-gpio');
 var boiler = (function () {
 
     var boiler_state = false;
+    var boiler_timer;
+    var boiler_on = function(hour) {
+        boiler_state = true;
+        gpio.write(15, boiler_state);
+        boiler_timer = setTimeout(boiler_off, hour * 60 * 60 * 1000);
+    };
+    var boiler_off = function() {
+        boiler_state = false;
+        gpio.write(15, boiler_state);
+        clearTimeout(boiler_timer);
+    };
 
     gpio.on('change', function (channel, value) {
         if (channel == 16 && value == true) {
-            boiler_state = !boiler_state;
-            gpio.write(15, boiler_state);
+            if (boiler_state == true) {
+                boiler_off()
+            } else {
+                boiler_on(0.5);
+            }
             console.log('Toggle button pushed, boiler_state ' + boiler_state);
         }
     });
@@ -32,15 +46,11 @@ var boiler = (function () {
     return {
         turnOn: function (hour) {
             console.log("turnOn: set timeout hour = ", hour);
-            boiler_state = true;
-            gpio.write(15, boiler_state);
-
-            setTimeout(this.turnOff, hour * 60 * 60 * 1000);
+            boiler_on(hour);
         },
         turnOff: function () {
             console.log("turnOff");
-            boiler_state = false;
-            gpio.write(15, boiler_state);
+            boiler_off();
         },
         getState: function () {
             return boiler_state;
