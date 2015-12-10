@@ -47,7 +47,7 @@ var mysqlStore = require('connect-mysql')(session),
     };
 // required for passport
 app.use(session({
-    secret: 'homesweethome',
+    secret: mysql_info.session_secret,
     cookie: {
         maxAge: (24 * 3600 * 1000 * 30)
     },

@@ -2,7 +2,8 @@ var mysql_info = {
     host: 'localhost',
     user: 'homeserver',
     password: '',
-    database: 'homeserver'
+    database: 'homeserver',
+    session_secret: 'homeserver'
 };
 
 module.exports = mysql_info;
