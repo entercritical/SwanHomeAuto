@@ -13,50 +13,7 @@ var codesend = require('./routes/codesend');
 
 var dht = require('dht-sensor');
 
-var gpio = require('rpi-gpio');
-
-var boiler = (function () {
-
-    var boiler_state = false;
-    var boiler_timer;
-    var boiler_on = function(hour) {
-        boiler_state = true;
-        gpio.write(15, boiler_state);
-        boiler_timer = setTimeout(boiler_off, hour * 60 * 60 * 1000);
-    };
-    var boiler_off = function() {
-        boiler_state = false;
-        gpio.write(15, boiler_state);
-        clearTimeout(boiler_timer);
-    };
-
-    gpio.on('change', function (channel, value) {
-        if (channel == 16 && value == true) {
-            if (boiler_state == true) {
-                boiler_off()
-            } else {
-                boiler_on(0.5);
-            }
-            console.log('Toggle button pushed, boiler_state ' + boiler_state);
-        }
-    });
-    gpio.setup(15, gpio.DIR_OUT);
-    gpio.setup(16, gpio.DIR_IN, gpio.EDGE_BOTH);
-
-    return {
-        turnOn: function (hour) {
-            console.log("turnOn: set timeout hour = ", hour);
-            boiler_on(hour);
-        },
-        turnOff: function () {
-            console.log("turnOff");
-            boiler_off();
-        },
-        getState: function () {
-            return boiler_state;
-        }
-    };
-}());
+var boiler = require('./boiler');
 
 var session = require('express-session')
 var passport = require('passport');
@@ -168,13 +125,13 @@ app.post('/codesend', isLoggedIn, function (req, res) {
 app.post('/api/boilerOn', isLoggedIn, function (req, res) {
     var hour = req.query.hour;
     console.log("Boiler On : " + hour);
-    boiler.turnOn(hour);
+    boiler.on(hour);
     res.redirect("back");
 });
 
 app.post('/api/boilerOff', isLoggedIn, function (req, res) {
     console.log("Boiler Off");
-    boiler.turnOff();
+    boiler.off();
     res.redirect("back");
 });
 
