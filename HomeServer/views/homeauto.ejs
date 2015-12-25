@@ -21,7 +21,6 @@
 
     <div class="page-header text-center">
         <h2><span class="fa fa-cloud"></span> Home Automation</h2>
-        <a href="/logout" class="btn btn-default btn-sm">Logout</a>
     </div>
 
     <div class="row">
@@ -29,7 +28,7 @@
         <!-- LOCAL INFORMATION -->
         <div class="col-sm-6">
             <div class="well">
-                <h4><span class="fa fa-user"></span> <%= user.name %></h3>
+                <h4><span class="fa fa-user"></span> <%= user.name %> <a href="/logout" class="btn btn-default btn-sm">Logout</a></h3>
                 <strong>Living Room :</strong> <%= temperature %>°C <span class="fa fa-tint"></span> <%= humidity %>%<br>
             </div>
         </div>
