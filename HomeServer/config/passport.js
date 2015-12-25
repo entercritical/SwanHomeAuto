@@ -77,7 +77,7 @@ module.exports = function (passport) {
                 },
                 function (error, response, body) {
                     var result = JSON.parse(body);
-                    console.log(result);
+                    //console.log(result);
 
                     if (result.success) {
                         // find a user whose email is the same as the forms email
@@ -122,7 +122,7 @@ module.exports = function (passport) {
             // find a user whose email is the same as the forms email
             // we are checking to see if the user trying to login already exists
             console.log(req.client._peername);
-            console.log(req.body);
+            console.log(req.body.name);
 
 
             request.post(
