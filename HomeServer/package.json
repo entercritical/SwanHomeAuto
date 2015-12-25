@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "bcrypt-nodejs": "~0.0.3",
+    "bluetooth-serial-port": "^1.2.6",
     "body-parser": "~1.14.1",
     "connect-flash": "~0.1.1",
     "connect-mysql": "~2.1.1",
