@@ -14,6 +14,7 @@ var codesend = require('./routes/codesend');
 var dht = require('dht-sensor');
 
 var boiler = require('./boiler');
+var blanket = require('./blanket');
 
 var session = require('express-session')
 var passport = require('passport');
@@ -102,7 +103,8 @@ app.get('/homeauto', isLoggedIn, function (req, res) {
         user: req.user, // get the user out of session and pass to template
         temperature: current.temperature,
         humidity: current.humidity,
-        boilerState: boiler.getState()
+        boilerState: boiler.getState(),
+        blanketState: blanket.getState()
     });
 });
 
@@ -132,6 +134,19 @@ app.post('/api/boilerOn', isLoggedIn, function (req, res) {
 app.post('/api/boilerOff', isLoggedIn, function (req, res) {
     console.log("Boiler Off");
     boiler.off();
+    res.redirect("back");
+});
+
+app.post('/api/blanketOn', isLoggedIn, function (req, res) {
+    var hour = req.query.hour;
+    console.log("Blanket On : " + hour);
+    blanket.on(hour);
+    res.redirect("back");
+});
+
+app.post('/api/blanketOff', isLoggedIn, function (req, res) {
+    console.log("Blanket Off");
+    blanket.off();
     res.redirect("back");
 });
 
