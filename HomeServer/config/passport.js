@@ -22,28 +22,23 @@ var validPassword = function (password, crypted) {
 var mysql = require('mysql');
 var connection;
 
-function handleDisconnect() {
+function connectDB() {
     connection = mysql.createConnection(mysql_info); // Recreate the connection, since
                                                      // the old one cannot be reused.
 
     connection.connect(function (err) {              // The server is either down
         if (err) {                                   // or restarting (takes a while sometimes).
             console.log('error when connecting to db:', err);
-            setTimeout(handleDisconnect, 2000); // We introduce a delay before attempting to reconnect,
         }                                       // to avoid a hot loop, and to allow our node script to
         console.log('mysql connected as id ' + connection.threadId);// process asynchronous requests in the meantime.
-    });                                            // If you're also serving http, display a 503 error.
-    connection.on('error', function (err) {
-        console.log('db error', err);
-        if (err.code === 'PROTOCOL_CONNECTION_LOST') { // Connection to the MySQL server is usually
-            handleDisconnect();                        // lost due to either server restart, or a
-        } else {                                       // connnection idle timeout (the wait_timeout
-            throw err;                                 // server variable configures this)
-        }
     });
 }
 
-handleDisconnect();
+function endDB() {
+    connection.end(function(err) {
+        console.log('mysql ended');
+    });
+}
 
 // expose this function to our app using module.exports
 module.exports = function (passport) {
@@ -94,6 +89,8 @@ module.exports = function (passport) {
                     //console.log(result);
 
                     if (result.success) {
+                        connectDB();
+
                         // find a user whose email is the same as the forms email
                         connection.query('SELECT * FROM users WHERE name = ?', name, function (err, user) {
                             // if there are any errors, return the error
@@ -102,6 +99,7 @@ module.exports = function (passport) {
 
                             // check to see if theres already a user with that email
                             if (user.length != 0) {
+                                endDB();
                                 return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
                             } else {
                                 var encrypt = generateHash(password);
@@ -111,6 +109,7 @@ module.exports = function (passport) {
                                         throw err;
                                     return done(null, {name: name, password: encrypt});
                                 });
+                                endDB();
                             }
 
                         });
@@ -152,6 +151,8 @@ module.exports = function (passport) {
                     console.log(result);
 
                     if (result.success) {
+                        connectDB();
+
                         connection.query('SELECT * FROM users WHERE name = ?', name, function (err, user) {
                             // connected! (unless `err` is set)
                             // if there are any errors, return the error before anything else
@@ -169,6 +170,8 @@ module.exports = function (passport) {
                             // all is well, return successful user
                             return done(null, {name: user[0].name, password: user[0].password});
                         });
+
+                        endDB();
                     } else {
                         return done(null, false, req.flash('loginMessage', 'reCAPTCHA failed'));
                     }
