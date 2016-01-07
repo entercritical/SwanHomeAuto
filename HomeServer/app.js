@@ -19,6 +19,7 @@ var blanket = require('./blanket');
 var session = require('express-session')
 var passport = require('passport');
 var flash = require('connect-flash');
+require( "console-stamp" )( console, { pattern : "yyyy/mm/dd HH:MM:ss.l" } ); // log timestamp
 require('./config/passport')(passport); // pass passport for configuration
 
 var app = express();
