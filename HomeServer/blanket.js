@@ -8,14 +8,6 @@ module.exports = (function () {
         btSerial.findSerialPortChannel(address, function(channel) {
             btSerial.connect(address, channel, function() {
                 console.log('blanket connected : ' + address + ' ' + channel);
-
-                //btSerial.write(new Buffer('my data', 'utf-8'), function(err, bytesWritten) {
-                //    if (err) console.log(err);
-                //});
-                //
-                //btSerial.on('data', function(buffer) {
-                //    console.log(buffer.toString('utf-8'));
-                //});
                 power_off();
             }, function () {
                 console.log('blanket cannot connect');
@@ -56,7 +48,7 @@ module.exports = (function () {
 
     return {
         on: function (hour) {
-            console.log("blanket on: set timeout hour = ", hour);
+            console.log("blanket on: timeout = " + hour + " hour");
             power_on(hour);
         },
         off: function () {
