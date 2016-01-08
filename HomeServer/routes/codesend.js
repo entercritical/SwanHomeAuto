@@ -12,14 +12,14 @@ function Dec2Bin(number, nbit) {
 
     if (!isNaN(number)) {
         result = parseInt(number, 10).toString(2);
-    } 
+    }
 
     if (result.length < nbit) {
         for (var i = 0; i <= nbit - result.length; ++i) {
             tmp += '0';
         }
     }
-                                                                     
+
     return tmp + result;
 }
 
@@ -27,7 +27,7 @@ rcswitch.enableTransmit(0);
 
 
 /* POST users listing. */
-router.post('/', isLoggedIn, function(req, res) {
+router.post('/', isLoggedIn, function (req, res) {
     var unitCode = req.query.unitCode;
     var binCode = Dec2Bin(unitCode, 24);
 

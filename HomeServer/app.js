@@ -11,9 +11,15 @@ var rcswitch = require('rcswitch');
 
 var codesend = require('./routes/codesend');
 
+var dht = require('dht-sensor');
+
+var boiler = require('./boiler');
+var blanket = require('./blanket');
+
 var session = require('express-session')
 var passport = require('passport');
-var flash    = require('connect-flash');
+var flash = require('connect-flash');
+require( "console-stamp" )( console, { pattern : "yyyy/mm/dd HH:MM:ss.l" } ); // log timestamp
 require('./config/passport')(passport); // pass passport for configuration
 
 var app = express();
@@ -27,11 +33,11 @@ app.set('view engine', 'ejs'); // set up ejs for templating
 //app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/api/codesend', codesend);
+//app.use('/api/codesend', codesend);
 
 var mysqlStore = require('connect-mysql')(session),
     options = {
@@ -43,9 +49,9 @@ var mysqlStore = require('connect-mysql')(session),
     };
 // required for passport
 app.use(session({
-    secret: 'homesweethome',
+    secret: mysql_info.session_secret,
     cookie: {
-        maxAge: (24*3600*1000*30)
+        maxAge: (24 * 3600 * 1000 * 30)
     },
     resave: false,
     saveUninitialized: false,
@@ -55,7 +61,7 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     if (req.isAuthenticated()) {
         res.redirect('/homeauto');
     } else {
@@ -64,45 +70,51 @@ app.get('/', function(req, res) {
 });
 
 // show the login form
-app.get('/login', function(req, res) {
+app.get('/login', function (req, res) {
     // render the page and pass in any flash data if it exists
-    res.render('login.ejs', { message: req.flash('loginMessage'), sitekey: recaptcha_info.recaptcha_sitekey });
+    res.render('login.ejs', {message: req.flash('loginMessage'), sitekey: recaptcha_info.recaptcha_sitekey});
 });
 
 // process the login form
 app.post('/login', passport.authenticate('local-login', {
-    successRedirect : '/homeauto', // redirect to the secure profile section
-    failureRedirect : '/login', // redirect back to the signup page if there is an error
-    failureFlash : true // allow flash messages
+    successRedirect: '/homeauto', // redirect to the secure profile section
+    failureRedirect: '/login', // redirect back to the signup page if there is an error
+    failureFlash: true // allow flash messages
 }));
 
 //// show the signup form
-app.get('/signup', function(req, res) {
+app.get('/signup', function (req, res) {
 
     // render the page and pass in any flash data if it exists
-    res.render('signup.ejs', { message: req.flash('signupMessage'), sitekey: recaptcha_info.recaptcha_sitekey  });
+    res.render('signup.ejs', {message: req.flash('signupMessage'), sitekey: recaptcha_info.recaptcha_sitekey});
 });
 
 // process the signup form
 app.post('/signup', passport.authenticate('local-signup', {
-    successRedirect : '/homeauto', // redirect to the secure profile section
-    failureRedirect : '/signup', // redirect back to the signup page if there is an error
-    failureFlash : true // allow flash messages
+    successRedirect: '/homeauto', // redirect to the secure profile section
+    failureRedirect: '/signup', // redirect back to the signup page if there is an error
+    failureFlash: true // allow flash messages
 }));
 
 // we will use route middleware to verify this (the isLoggedIn function)
-app.get('/homeauto', isLoggedIn, function(req, res) {
+app.get('/homeauto', isLoggedIn, function (req, res) {
+    var current = dht.read(11, 18);
+
     res.render('homeauto.ejs', {
-        user : req.user // get the user out of session and pass to template
+        user: req.user, // get the user out of session and pass to template
+        temperature: current.temperature,
+        humidity: current.humidity,
+        boilerState: boiler.getState(),
+        blanketState: blanket.getState()
     });
 });
 
-app.get('/logout', function(req, res) {
+app.get('/logout', function (req, res) {
     req.logout();
     res.redirect('/');
 });
 
-app.post('/codesend', isLoggedIn, function(req, res) {
+app.post('/codesend', isLoggedIn, function (req, res) {
     var unitCode = req.query.unitCode;
     var binCode = parseInt(unitCode, 10).toString(2);
 
@@ -113,8 +125,31 @@ app.post('/codesend', isLoggedIn, function(req, res) {
     res.redirect("back");
 });
 
+app.post('/api/boilerOn', isLoggedIn, function (req, res) {
+    var hour = req.query.hour;
+
+    boiler.on(hour);
+    res.redirect("back");
+});
+
+app.post('/api/boilerOff', isLoggedIn, function (req, res) {
+    boiler.off();
+    res.redirect("back");
+});
+
+app.post('/api/blanketOn', isLoggedIn, function (req, res) {
+    var hour = req.query.hour;
+    blanket.on(hour);
+    res.redirect("back");
+});
+
+app.post('/api/blanketOff', isLoggedIn, function (req, res) {
+    blanket.off();
+    res.redirect("back");
+});
+
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
     next(err);
@@ -136,7 +171,7 @@ function isLoggedIn(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
+    app.use(function (err, req, res, next) {
         res.status(err.status || 500);
         res.render('error', {
             message: err.message,
@@ -148,7 +183,7 @@ if (app.get('env') === 'development') {
 
 // production error handler
 // no stacktraces leaked to user
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error', {
         message: err.message,

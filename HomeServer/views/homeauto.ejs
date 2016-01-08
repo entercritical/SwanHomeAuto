@@ -7,20 +7,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Home Automation</title>
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
     <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-
-    <style>
-        body 		{ word-wrap:break-word; }
-    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/css/bootstrap3/bootstrap-switch.min.css"
+          rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-switch/3.3.2/js/bootstrap-switch.min.js"></script>
 </head>
 <body>
 
 <div class="container">
 
     <div class="page-header text-center">
-        <h1><span class="fa fa-cloud"></span> Home Automation</h1>
-        <a href="/logout" class="btn btn-default btn-sm">Logout</a>
+        <h2><span class="fa fa-cloud"></span> Home Automation</h2>
     </div>
 
     <div class="row">
@@ -28,12 +28,8 @@
         <!-- LOCAL INFORMATION -->
         <div class="col-sm-6">
             <div class="well">
-                <h3><span class="fa fa-user"></span> User</h3>
-
-                <p>
-                    <strong>name</strong>: <%= user.name %><br>
-                </p>
-
+                <h4><span class="fa fa-user"></span> <%= user.name %> <a href="/logout" class="btn btn-default btn-sm">Logout</a></h3>
+                <strong>Living Room :</strong> <%= temperature %>°C <span class="fa fa-tint"></span> <%= humidity %>%<br>
             </div>
         </div>
     </div>
@@ -43,17 +39,75 @@
         <!-- LOCAL INFORMATION -->
         <div class="col-sm-6">
             <div class="well">
-                <h3><span class="fa fa-gears"></span> Boiler</h3>
-                <form action="/codesend?unitCode=1001" method="post">
-                    <input type="submit" class="btn btn-default" value="On" />
-                </form>
-                <form action="/codesend?unitCode=1000" method="post">
-                    <input type="submit" class="btn btn-default" value="Off" />
-                </form>
+                <h4><span class="fa fa-gears"></span> Boiler</h3>
+                <input type="checkbox" name="boiler-switch" data-size="small">
+
+                <select class="input-sm" name="boiler-hour">
+                    <option value="1">1 hour</option>
+                    <option value="2">2 hours</option>
+                    <option value="3">3 hours</option>
+                    <option value="4">4 hours</option>
+                    <option value="5">5 hours</option>
+                    <option value="6">6 hours</option>
+                    <option value="7">7 hours</option>
+                    <option value="8">8 hours</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="well">
+                <h4><span class="fa fa-bolt"></span> Electric blanket</h3>
+                <input type="checkbox" name="blanket-switch" data-size="small">
+                <select class="input-sm" name="blanket-hour">
+                    <option value="8">8 hours</option>
+                    <option value="7">7 hours</option>
+                    <option value="6">6 hours</option>
+                    <option value="5">5 hours</option>
+                    <option value="4">4 hours</option>
+                    <option value="3">3 hours</option>
+                    <option value="2">2 hours</option>
+                    <option value="1">1 hours</option>
+                </select>
             </div>
         </div>
     </div>
 </div>
 
+<script>
+    $("[name='boiler-switch']").bootstrapSwitch({
+        'state': <%- JSON.stringify(boilerState) %>,
+        onSwitchChange: function (event, state) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (xhttp.readyState == 4 && xhttp.status == 200) {
+                }
+            };
+            var hour = $("[name='boiler-hour']")[0].value;
+
+            console.log('boiler-switch : ' + state + ', hour : ' + hour);
+            xhttp.open("POST", state === true ? "/api/boilerOn?hour=" + hour : "/api/boilerOff", true);
+            xhttp.send();
+        }
+    });
+
+    $("[name='blanket-switch']").bootstrapSwitch({
+        'state': <%- JSON.stringify(blanketState) %>,
+        onSwitchChange: function (event, state) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (xhttp.readyState == 4 && xhttp.status == 200) {
+                }
+            };
+            var hour = $("[name='blanket-hour']")[0].value;
+
+            console.log('blanket-switch : ' + state + ', hour : ' + hour);
+            xhttp.open("POST", state === true ? "/api/blanketOn?hour=" + hour : "/api/blanketOff", true);
+            xhttp.send();
+        }
+    });
+</script>
 </body>
 </html>
