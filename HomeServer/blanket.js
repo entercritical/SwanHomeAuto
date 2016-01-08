@@ -56,11 +56,11 @@ module.exports = (function () {
 
     return {
         on: function (hour) {
-            console.log("Power on: set timeout hour = ", hour);
+            console.log("blanket on: set timeout hour = ", hour);
             power_on(hour);
         },
         off: function () {
-            console.log("Power off");
+            console.log("blanket off");
             power_off();
         },
         getState: function () {

@@ -139,13 +139,11 @@ app.post('/api/boilerOff', isLoggedIn, function (req, res) {
 
 app.post('/api/blanketOn', isLoggedIn, function (req, res) {
     var hour = req.query.hour;
-    console.log("Blanket On : " + hour);
     blanket.on(hour);
     res.redirect("back");
 });
 
 app.post('/api/blanketOff', isLoggedIn, function (req, res) {
-    console.log("Blanket Off");
     blanket.off();
     res.redirect("back");
 });
