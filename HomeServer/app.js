@@ -127,13 +127,12 @@ app.post('/codesend', isLoggedIn, function (req, res) {
 
 app.post('/api/boilerOn', isLoggedIn, function (req, res) {
     var hour = req.query.hour;
-    console.log("Boiler On : " + hour);
+
     boiler.on(hour);
     res.redirect("back");
 });
 
 app.post('/api/boilerOff', isLoggedIn, function (req, res) {
-    console.log("Boiler Off");
     boiler.off();
     res.redirect("back");
 });

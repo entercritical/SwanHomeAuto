@@ -19,7 +19,7 @@ module.exports = (function () {
             if (boiler_state == true) {
                 boiler_off()
             } else {
-                boiler_on(0.5);
+                boiler_on(1);
             }
             console.log('Toggle button pushed, boiler_state ' + boiler_state);
         }
