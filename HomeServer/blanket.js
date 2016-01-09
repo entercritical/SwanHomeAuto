@@ -37,7 +37,7 @@ module.exports = (function () {
         } else {
             console.log("blanket connection error, re-connect");
             btSerial.connect(btAddress, btChannel, function() {
-                console.log('blanket connected : ' + address + ' ' + channel);
+                console.log('blanket connected : ' + btAddress + ' ' + btChannel);
                 power_on(hour);
             });
         }
@@ -53,7 +53,7 @@ module.exports = (function () {
         } else {
             console.log("blanket connection error, re-connect");
             btSerial.connect(btAddress, btChannel, function() {
-                console.log('blanket connected : ' + address + ' ' + channel);
+                console.log('blanket connected : ' + btAddress + ' ' + btChannel);
                 power_off();
             });
         }
