@@ -28,8 +28,10 @@
         <!-- LOCAL INFORMATION -->
         <div class="col-sm-6">
             <div class="well">
-                <h4><span class="fa fa-user"></span> <%= user.name %> <a href="/logout" class="btn btn-default btn-sm">Logout</a></h3>
-                <strong>Living Room :</strong> <%= temperature %>°C <span class="fa fa-tint"></span> <%= humidity %>%<br>
+                <h4><span class="fa fa-user"></span> <%= user.name %> <a href="/logout" class="btn btn-default btn-sm">Logout</a>
+                </h4>
+                <strong>Living Room :</strong> <%= livingRoomTemp %>°C <span class="fa fa-tint"></span> <%= livingRoomHum %>%<br>
+                <strong>Bed Room :</strong> <%= bedRoomTemp %>°C <span class="fa fa-tint"></span> <%= bedRoomHum %>%<br>
             </div>
         </div>
     </div>
