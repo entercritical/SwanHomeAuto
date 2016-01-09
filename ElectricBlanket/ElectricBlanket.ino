@@ -31,6 +31,8 @@ DHT dht(DHTPIN, DHTTYPE);
 
 unsigned long time;
 unsigned long lastUpdateTime;
+int temperature;
+int humidity;
 
 void setup() {
   // Open serial communications and wait for port to open:
@@ -60,11 +62,16 @@ void updateDHT() {
     Serial.print("Temperature: ");
     Serial.print(t);
     Serial.println(" *C ");
-    bluetooth.write(0x02); // start
-    bluetooth.write('T');
-    bluetooth.write(t);
-    bluetooth.write(h);
-    bluetooth.write(0x03); // end
+    if (t != temperature && h != humidity) {
+      temperature = t;
+      humidity = h;
+    
+      bluetooth.write(0x02); // start
+      bluetooth.write('T');
+      bluetooth.write(t);
+      bluetooth.write(h);
+      bluetooth.write(0x03); // end
+    }
 }
 void loop() { // run over and over
   time = millis();
