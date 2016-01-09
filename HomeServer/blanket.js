@@ -32,6 +32,8 @@ module.exports = (function () {
     btSerial.inquire();
 
     var power_on = function(hour) {
+        console.log("blanket on: timeout = " + hour + " hour");
+
         if (btSerial.isOpen()) {
             state = true;
             btSerial.write(new Buffer('35', 'utf-8'), function (err, bytesWritten) {
@@ -50,6 +52,8 @@ module.exports = (function () {
     };
 
     var power_off = function() {
+        console.log("blanket off");
+
         if (btSerial.isOpen()) {
             state = false;
             btSerial.write(new Buffer('24', 'utf-8'), function (err, bytesWritten) {
@@ -69,11 +73,9 @@ module.exports = (function () {
 
     return {
         on: function (hour) {
-            console.log("blanket on: timeout = " + hour + " hour");
             power_on(hour);
         },
         off: function () {
-            console.log("blanket off");
             power_off();
         },
         getState: function () {
