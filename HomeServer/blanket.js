@@ -14,6 +14,10 @@ module.exports = (function () {
                 btAddress = address;
                 btChannel = channel;
                 power_off();
+
+                btSerial.on('data', function (buffer) {
+                    console.log(buffer.toString('utf-8'));
+                });
             }, function () {
                 console.log('blanket cannot connect');
             });
@@ -40,6 +44,8 @@ module.exports = (function () {
                 console.log('blanket connected : ' + btAddress + ' ' + btChannel);
                 power_on(hour);
             });
+            // close the connection when you're ready
+            btSerial.close();
         }
     };
 
@@ -56,6 +62,8 @@ module.exports = (function () {
                 console.log('blanket connected : ' + btAddress + ' ' + btChannel);
                 power_off();
             });
+            // close the connection when you're ready
+            btSerial.close();
         }
     };
 
