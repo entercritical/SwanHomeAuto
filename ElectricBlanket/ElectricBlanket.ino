@@ -17,11 +17,20 @@ Right D11
 
  */
 #include <SoftwareSerial.h>
+#include "DHT.h"
 
-SoftwareSerial bluetooth(8, 9); // RX, TX
-
+// configuration
 #define EB_LEFT 10
 #define EB_RIGHT 11
+
+#define DHTTYPE DHT11
+#define DHTPIN 2
+
+SoftwareSerial bluetooth(8, 9); // RX, TX
+DHT dht(DHTPIN, DHTTYPE);
+
+unsigned long time;
+unsigned long lastUpdateTime;
 
 void setup() {
   // Open serial communications and wait for port to open:
@@ -33,17 +42,39 @@ void setup() {
   pinMode(13, OUTPUT); //TEST
   pinMode(EB_LEFT, OUTPUT);
   pinMode(EB_RIGHT, OUTPUT);
-  
-  Serial.println("Goodnight moon!");
 
   // set the data rate for the SoftwareSerial port
   bluetooth.begin(9600);
-  bluetooth.println("Hello, world?");
+
+  dht.begin();
+  updateDHT();
+  lastUpdateTime = time = millis();
 }
 
+void updateDHT() {
+    int t = dht.readTemperature();
+    int h = dht.readHumidity();
+    Serial.print("\nHumidity: ");
+    Serial.print(h);
+    Serial.print(" %\t");
+    Serial.print("Temperature: ");
+    Serial.print(t);
+    Serial.println(" *C ");
+    bluetooth.write(0x02); // start
+    bluetooth.write('T');
+    bluetooth.write(t);
+    bluetooth.write(h);
+    bluetooth.write(0x03); // end
+}
 void loop() { // run over and over
+  time = millis();
+  if (time - lastUpdateTime > 1000L * 60 * 10) {
+    lastUpdateTime = time;
+    updateDHT();
+  }
+  
   if (bluetooth.available()) {
-    char c = bluetooth.read();
+    int c = bluetooth.read();
     
     Serial.write(c);
     if (c == '0') {
@@ -60,8 +91,11 @@ void loop() { // run over and over
       digitalWrite(EB_RIGHT, LOW);
     } else if (c == '5') {
       digitalWrite(EB_RIGHT, HIGH);
+    } else if (c == '6') {
+      updateDHT();
     }
   }
+  
   if (Serial.available()) {
     bluetooth.write(Serial.read());
   }
