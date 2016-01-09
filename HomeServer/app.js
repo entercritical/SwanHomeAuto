@@ -98,12 +98,15 @@ app.post('/signup', passport.authenticate('local-signup', {
 
 // we will use route middleware to verify this (the isLoggedIn function)
 app.get('/homeauto', isLoggedIn, function (req, res) {
-    var current = dht.read(11, 18);
+    var livingRoom = dht.read(11, 18);
+    var bedRoom = blanket.readDHT();
 
     res.render('homeauto.ejs', {
         user: req.user, // get the user out of session and pass to template
-        temperature: current.temperature,
-        humidity: current.humidity,
+        livingRoomTemp: livingRoom.temperature,
+        livingRoomHum: livingRoom.humidity,
+        bedRoomTemp: bedRoom.temperature,
+        bedRoomHum: bedRoom.humidity,
         boilerState: boiler.getState(),
         blanketState: blanket.getState()
     });
