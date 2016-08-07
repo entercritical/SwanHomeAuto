@@ -37,11 +37,19 @@
     </div>
 
     <div class="row">
-
-        <!-- LOCAL INFORMATION -->
         <div class="col-sm-6">
             <div class="well">
-                <h4><span class="fa fa-gears"></span> Boiler</h3>
+                <h4><span class="fa fa-lightbulb-o"></span> Light</h4>
+                <strong>Living Room :</strong>
+                <input type="checkbox" name="light-switch" data-size="small">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="well">
+                <h4><span class="fa fa-gears"></span> Boiler</h4>
                 <input type="checkbox" name="boiler-switch" data-size="small">
 
                 <select class="input-sm" name="boiler-hour">
@@ -61,7 +69,7 @@
     <div class="row">
         <div class="col-sm-6">
             <div class="well">
-                <h4><span class="fa fa-bolt"></span> Electric blanket</h3>
+                <h4><span class="fa fa-bolt"></span> Electric blanket</h4>
                 <input type="checkbox" name="blanket-switch" data-size="small">
                 <select class="input-sm" name="blanket-hour">
                     <option value="8">8 hours</option>
@@ -79,6 +87,23 @@
 </div>
 
 <script>
+    $("[name='light-switch']").bootstrapSwitch({
+        'state': <%- JSON.stringify(lightState) %>,
+        onSwitchChange: function (event, state) {
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = function () {
+                if (xhttp.readyState == 4 && xhttp.status == 200) {
+                }
+            };
+            //var place = $("[name='light-place']")[0].value;
+            var place = 1;
+
+            console.log('light-switch : ' + state + ', place : ' + place);
+            xhttp.open("POST", state === true ? "/api/lightOn?place=" + place : "/api/lightOff?place=" + place, true);
+            xhttp.send();
+        }
+    });
+
     $("[name='boiler-switch']").bootstrapSwitch({
         'state': <%- JSON.stringify(boilerState) %>,
         onSwitchChange: function (event, state) {

@@ -13,8 +13,20 @@ var codesend = require('./routes/codesend');
 
 var dht = require('dht-sensor');
 
+var light = require('./light');
 var boiler = require('./boiler');
 var blanket = require('./blanket');
+// dummy blanket
+//var blanket = {
+//    readDHT: function() {
+//        return { temperature: 25, humidity: 40 };
+//    },
+//    getState: function() {
+//        return false;
+//    },
+//    on: function() {},
+//    off: function() {}
+//};
 
 var session = require('express-session')
 var passport = require('passport');
@@ -107,6 +119,7 @@ app.get('/homeauto', isLoggedIn, function (req, res) {
         livingRoomHum: livingRoom.humidity,
         bedRoomTemp: bedRoom.temperature,
         bedRoomHum: bedRoom.humidity,
+        lightState: light.getState(),
         boilerState: boiler.getState(),
         blanketState: blanket.getState()
     });
@@ -117,7 +130,7 @@ app.get('/logout', function (req, res) {
     res.redirect('/');
 });
 
-app.post('/codesend', isLoggedIn, function (req, res) {
+app.post('/api/codesend', isLoggedIn, function (req, res) {
     var unitCode = req.query.unitCode;
     var binCode = parseInt(unitCode, 10).toString(2);
 
@@ -148,6 +161,18 @@ app.post('/api/blanketOn', isLoggedIn, function (req, res) {
 
 app.post('/api/blanketOff', isLoggedIn, function (req, res) {
     blanket.off();
+    res.redirect("back");
+});
+
+app.post('/api/lightOn', isLoggedIn, function (req, res) {
+    var place = req.query.place;
+    light.on(place);
+    res.redirect("back");
+});
+
+app.post('/api/lightOff', isLoggedIn, function (req, res) {
+    var place = req.query.place;
+    light.off(place);
     res.redirect("back");
 });
 
