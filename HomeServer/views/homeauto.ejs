@@ -41,7 +41,11 @@
             <div class="well">
                 <h4><span class="fa fa-lightbulb-o"></span> Light</h4>
                 <strong>Living Room :</strong>
-                <input type="checkbox" name="light-switch" data-size="small">
+                <!-- input type="checkbox" name="light-switch" data-size="small" -->
+                <div class="btn-group" role="group" aria-label="...">
+                    <button type="button" class="btn btn-default" name="light-on">On</button>
+                    <button type="button" class="btn btn-default" name="light-off">Off</button>
+                </div>
             </div>
         </div>
     </div>
@@ -87,21 +91,33 @@
 </div>
 
 <script>
+    function lightSwitch(place, state) {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+            }
+        };
+        //var place = $("[name='light-place']")[0].value;
+        //var place = 1;
+
+        console.log('light-switch : ' + state + ', place : ' + place);
+        xhttp.open("POST", state === true ? "/api/lightOn?place=" + place : "/api/lightOff?place=" + place, true);
+        xhttp.send();
+    }
+
     $("[name='light-switch']").bootstrapSwitch({
         'state': <%- JSON.stringify(lightState) %>,
         onSwitchChange: function (event, state) {
-            var xhttp = new XMLHttpRequest();
-            xhttp.onreadystatechange = function () {
-                if (xhttp.readyState == 4 && xhttp.status == 200) {
-                }
-            };
-            //var place = $("[name='light-place']")[0].value;
-            var place = 1;
-
-            console.log('light-switch : ' + state + ', place : ' + place);
-            xhttp.open("POST", state === true ? "/api/lightOn?place=" + place : "/api/lightOff?place=" + place, true);
-            xhttp.send();
+            lightSwitch(1, state);
         }
+    });
+
+    $("[name='light-on']").click(function() {
+        lightSwitch(1, true);
+    });
+
+    $("[name='light-off']").click(function() {
+        lightSwitch(1, false);
     });
 
     $("[name='boiler-switch']").bootstrapSwitch({
