@@ -13,8 +13,20 @@ var codesend = require('./routes/codesend');
 
 var dht = require('dht-sensor');
 
+var light = require('./light');
 var boiler = require('./boiler');
 var blanket = require('./blanket');
+// dummy blanket
+//var blanket = {
+//    readDHT: function() {
+//        return { temperature: 25, humidity: 40 };
+//    },
+//    getState: function() {
+//        return false;
+//    },
+//    on: function() {},
+//    off: function() {}
+//};
 
 var session = require('express-session')
 var passport = require('passport');
@@ -107,6 +119,7 @@ app.get('/homeauto', isLoggedIn, function (req, res) {
         livingRoomHum: livingRoom.humidity,
         bedRoomTemp: bedRoom.temperature,
         bedRoomHum: bedRoom.humidity,
+        lightState: light.getState(),
         boilerState: boiler.getState(),
         blanketState: blanket.getState()
     });
@@ -117,7 +130,7 @@ app.get('/logout', function (req, res) {
     res.redirect('/');
 });
 
-app.post('/codesend', isLoggedIn, function (req, res) {
+app.post('/api/codesend', isLoggedIn, function (req, res) {
     var unitCode = req.query.unitCode;
     var binCode = parseInt(unitCode, 10).toString(2);
 
@@ -151,6 +164,18 @@ app.post('/api/blanketOff', isLoggedIn, function (req, res) {
     res.redirect("back");
 });
 
+app.post('/api/lightOn', isLoggedIn, function (req, res) {
+    var place = req.query.place;
+    light.on(place);
+    res.redirect("back");
+});
+
+app.post('/api/lightOff', isLoggedIn, function (req, res) {
+    var place = req.query.place;
+    light.off(place);
+    res.redirect("back");
+});
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
@@ -175,12 +200,13 @@ function isLoggedIn(req, res, next) {
 // will print stacktrace
 if (app.get('env') === 'development') {
     app.use(function (err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
+        //res.status(err.status || 500);
+        //res.render('error', {
+        //    message: err.message,
+        //    error: err
+        //});
         console.log(err);
+        res.redirect('/');
     });
 }
 

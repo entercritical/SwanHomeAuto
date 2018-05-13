@@ -22,7 +22,7 @@ module.exports = (function () {
             if (boiler_state == true) {
                 boiler_off()
             } else {
-                boiler_on(1);
+                boiler_on(0.5);
             }
         }
     });
